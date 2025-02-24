@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LuxeBoutique - Premium Women's Handbags & Purses">
+    <title>LuxeBoutique | Designer Handbags</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-bag-shopping"></i> LuxeBoutique</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#shop">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#cart">Cart (<span id="cartCount">0</span>)</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container text-center">
+            <h1>New Collection 2024</h1>
+            <p>Premium Leather Handbags & Accessories</p>
+            <a href="#shop" class="btn btn-dark">Shop Now</a>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section id="shop" class="products-section py-5">
+        <div class="container">
+            <div class="filter-buttons mb-4 text-center">
+                <button class="btn btn-outline-dark active" data-filter="all">All</button>
+                <button class="btn btn-outline-dark" data-filter="totes">Totes</button>
+                <button class="btn btn-outline-dark" data-filter="clutches">Clutches</button>
+            </div>
+            
+            <div class="row g-4" id="productsContainer">
+                <!-- Products injected via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Shopping Cart Modal -->
+    <div class="modal fade" id="cartModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Shopping Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="cartItems">
+                    <!-- Cart items injected via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <h5>Total: $<span id="cartTotal">0.00</span></h5>
+                    <button class="btn btn-dark">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+:root {
+    --primary: #A0522D;
+    --secondary: #F5E6D3;
+    --dark: #2C1810;
+    --light: #FFFFFF;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    padding-top: 80px;
+}
+
+.navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/hero-bg.jpg');
+    background-size: cover;
+    color: white;
+    padding: 150px 0;
+    text-align: center;
+}
+
+.product-card {
+    border: none;
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-img {
+    height: 300px;
+    object-fit: cover;
+    position: relative;
+}
+
+.badge-custom {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-dark {
+    background: var(--dark);
+    border: none;
+}
+
+.btn-dark:hover {
+    background: var(--primary);
+}
+
+.filter-buttons .active {
+    background: var(--primary);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .product-img {
+        height: 200px;
+    }
+}
+
+// Product Data
+fetch('products.json')
+    .then(response => response.json())
+    .then(data => {
+        let products = data.products;
+        let container = document.getElementById('productsContainer');
+        
+        // Generate product cards
+        products.forEach(product => {
+            let card = `
+                <div class="col-md-4 col-lg-3" data-category="${product.category}">
+                    <div class="card product-card h-100">
+                        <img src="images/${product.images[0]}" class="card-img-top product-img" alt="${product.name}">
+                        <div class="card-body">
+                            <span class="badge badge-custom">${product.category}</span>
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">$${product.price}</p>
+                            <button class="btn btn-dark w-100 add-to-cart" data-id="${product.id}">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+
+        // Filter products
+        document.querySelectorAll('.filter-buttons button').forEach(button => {
+            button.addEventListener('click', () => {
+                let filter = button.dataset.filter;
+                document.querySelectorAll('[data-category]').forEach(item => {
+                    item.style.display = (filter === 'all' || item.dataset.category === filter) ? 'block' : 'none';
+                });
+                document.querySelectorAll('.filter-buttons button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+
+        // Cart functionality
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', () => {
+                let product = products.find(p => p.id == button.dataset.id);
+                cart.push(product);
+                updateCart();
+            });
+        });
+
+        function updateCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            document.getElementById('cartCount').textContent = cart.length;
+            
+            // Update cart modal
+            let cartItems = document.getElementById('cartItems');
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            cartItems.innerHTML = cart.map(item => `
+                <div class="d-flex justify-content-between mb-3">
+                    <div>${item.name}</div>
+                    <div>$${item.price}</div>
+                </div>
+            `).join('');
+            document.getElementById('cartTotal').textContent = total.toFixed(2);
+        }
+    });
+
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Vintage Leather Tote",
+            "price": 249.99,
+            "category": "totes",
+            "images": ["bag1.jpg"]
+        },
+        {
+            "id": 2,
+            "name": "Evening Silk Clutch",
+            "price": 179.99,
+            "category": "clutches",
+            "images": ["bag2.jpg"]
+        },
+        {
+            "id": 3,
+            "name": "Designer Crossbody Bag",
+            "price": 199.99,
+            "category": "crossbody",
+            "images": ["bag3.jpg"]
+        }
+    ]
+}
